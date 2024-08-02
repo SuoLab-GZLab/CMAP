@@ -13,7 +13,7 @@ To quickly use CMAP, we advice set up a new conda environment:
 After activate the created enviroment, CMAP R package can be easily installed from Github using devtools:  
 ```
 conda activate CMAP_Env 
-devtools::install_github("jincanke/CMAP")
+devtools::install_github("SuoLab-GZLab/CMAP")
 ```
 
 If you have any queations or dependency package install error, please make sure that you have installed the pacakges in the `Dependency_packages.txt` file. This file also provides install commands of dependency packages.
