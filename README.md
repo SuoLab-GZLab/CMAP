@@ -2,7 +2,8 @@
 
 CMAP is an R package that encapsulates python code, for efficiently mapping large-scale individual cells to their precise spatial locations by integrating single-cell and spatial data through a divide­-and-­conquer strategy.
   
-<div align=center><img width="711" height ='200' alt="截屏2024-07-31 下午3 46 01" src="https://github.com/user-attachments/assets/40d067ff-6dc0-4d26-a911-cea53b955811"></div>
+<img width="1140" alt="截屏2024-08-08 下午2 18 18" src="https://github.com/user-attachments/assets/4052a5ea-9ad3-467b-a936-b481ba213273">
+
 
 This approach allows for progressive refinement of spatial assignments, achieving high accuracy with reduced computational complexity. Unlike existing methods, CMAP achieves sub-spot precision, enabling precise mapping of individual cells within tissues.  
 
