@@ -50,7 +50,7 @@ sc_meta <- read.csv("sc_meta.csv",row.names = 1, check.names=FALSE)
 spatial_location <- read.csv("st_meta.csv",row.names = 1, check.names=FALSE)
 ```
 
-You can also loaded the created seurat objects
+You can also load the created Seurat objects. Here, we have provided demo datasets for testing (https://www.dropbox.com/scl/fi/q9axwdl8i5ukoctip12ro/CMAP.Demo.Lung_tumor.Data.Rdata?rlkey=an9l3kchva5yn5i80lqg1v0fv&st=jyvymggp&dl=0).
 ```
 sc_counts <- sc_object@assays$RNA@counts
 sc_meta <- data.frame(sc_object@meta.data,row.names=rownames(sc_object@meta.data))
