@@ -121,11 +121,11 @@ HMRF_spatial_genes = doHMRF(gobject = spatial_obj,
                             spatial_genes = spatial_genes_selected,
                             k = 3, # Need to be the same as the number of domains (k)
                             spatial_network_name="KNN_network",
-                            betas = c(0, 5, 20), # if length(spatial_genes_selected) ~ c(100,500)
+                            betas = c(0, 5, 20), # if length(spatial_genes_selected) ~ c(100,500), we recommend set betas as 0~100, if not mind time, you can iteratively test values between 0~100, and select the best one
                             python_path = python_path,
                             output_folder = paste0(hmrf_folder, '/', 'Spatial_genes/SG_topgenes_elbow_k_scaled'))
 #@betas_to_add: results from different betas that you want to add
-# tumor sample:beta=0; non-tumor:beta=45
+# We recommend: tumor sample: beta=0; non-tumor: beta=45
 spatial_obj = addHMRF(gobject = spatial_obj,
                       HMRFoutput = HMRF_spatial_genes,
                       k = 3,
