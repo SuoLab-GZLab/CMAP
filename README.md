@@ -102,7 +102,7 @@ spatial_obj <- normalizeGiotto(gobject = spatial_obj, scalefactor = 6000, verbos
 #@ maximum_distance_knn: Visium data, tissue_hires_scalef set ceiling(24.8/tissue_hires_scalef) or as maximum_distance_knn,  tissue_hires_scalef is saved in scalefactors_json.json; slide-seq/ST: set 1.5
 spatial_obj <- createSpatialNetwork(gobject = spatial_obj,
                                     method = 'kNN',
-                                    k = 6,
+                                    k = 6, # this k represents the number of neighbors
                                     maximum_distance_knn = 370, 
                                     minimum_k = 1,
                                     name = 'KNN_network')
@@ -112,26 +112,27 @@ hmrf_folder = paste0(save_directory,'/11_HMRF')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 spatial_genes_selected <- hmrf_spatial_gene(spatial_obj,
                                             kmtest,
-                                            k=3) # k: the number of spatial domains, need to set according to your data
+                                            k=3) # k: Number of spatial domains; set according to your data.
 
-#@ betas: if the number of spatial genes is between 100 to 500, you can set betas c(0,5,20); 
-# for quickly, we advice set 45(spatial domain) or 0(tumor sample) as betas
+#@ betas: For detailed settings, see https://search.r-project.org/CRAN/refmans/smfishHmrf/html/smfishHmrf.hmrfem.multi.it.min.html
+# For quick results, we recomoned setting betas to 45(non-tumor) or 0(tumor sample).
+# If you don't mind taking more time and want the best results, you can iteratively test values between 0 and 100 and select the best one.
 HMRF_spatial_genes = doHMRF(gobject = spatial_obj,
                             expression_values = 'scaled',
                             spatial_genes = spatial_genes_selected,
-                            k = 3, # Need to be the same as the number of domains (k)
+                            k = 3, # This value should match the number of spatial domains (k).
                             spatial_network_name="KNN_network",
-                            betas = c(0, 5, 20), # if length(spatial_genes_selected) ~ c(100,500), we recommend set betas as 0~100, if not mind time, you can iteratively test values between 0~100, and select the best one
+                            betas = c(0, 45, 2), 
                             python_path = python_path,
                             output_folder = paste0(hmrf_folder, '/', 'Spatial_genes/SG_topgenes_elbow_k_scaled'))
-#@betas_to_add: results from different betas that you want to add
-# We recommend: tumor sample: beta=0; non-tumor: beta=45
+#@betas_to_add: Results from different betas that you want to add
+# Recommendations: Tumor sample: beta=0; Non-tumor: beta=45.
 spatial_obj = addHMRF(gobject = spatial_obj,
                       HMRFoutput = HMRF_spatial_genes,
                       k = 3,
-                      betas_to_add = 0,  # c(seq(0,95,5)), set beta
+                      betas_to_add = 0,  # according to the above beta settings
                       hmrf_name = 'HMRF')
-# Add spatial domain to spatial metadata. You can also save the spatial_location as intermediate file, which must include spatial genes and spatial cluster labels
+# Add spatial domain to spatial metadata. You can also save the spatial_location as an intermediate file, which must include spatial genes and spatial cluster labels.
 spatial_location = spatial_location[as.data.frame(spatial_obj@cell_metadata)[,'cell_ID'],]
 spatial_location = cbind(spatial_location,HMRF_cluster = spatial_obj@cell_metadata$HMRF_k3_b.0) # this coloumn needs to be set as described above (the number of domains and beta)
 st_norm = st_norm[,rownames(spatial_location)]
