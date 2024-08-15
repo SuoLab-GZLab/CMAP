@@ -35,8 +35,8 @@ class Mapping:
             self.M, device=device, requires_grad=True, dtype=torch.float32
         )
 
-        self.G_n = (255*(self.G - self.G.min())/(self.G.max() - self.G.min()))
-        self.G_n = self.G_n.repeat(1,1,1,1)
+        self.S_n = (255*(self.S - self.S.min())/(self.S.max() - self.S.min()))
+        self.S_n = self.S_n.repeat(1,1,1,1)
 
 
     def _loss_fn(self, para_distance, para_density, verbose=True):
@@ -45,14 +45,14 @@ class Mapping:
         """
         M_probs = softmax(self.M, dim=1)
 
-        G_pred_t = torch.matmul(M_probs.t(), self.C)
+        S_pred_t = torch.matmul(M_probs.t(), self.C)
 
-        G_pred_n = (255*(G_pred_t - G_pred_t.min())/(G_pred_t.max() - G_pred_t.min()))
-        G_pred_n = G_pred_n.repeat(1,1,1,1)
+        S_pred_n = (255*(S_pred_t - S_pred_t.min())/(S_pred_t.max() - S_pred_t.min()))
+        S_pred_n = S_pred_n.repeat(1,1,1,1)
 
         map_spot_index = torch.max(M_probs, 1)[1].cpu().numpy()
         H_info = infor(map_spot_index)
-        total_loss = para_distance*(1 - pytorch_msssim.ssim(G_pred_n, self.G_n, window_size=2)) - para_density*H_info
+        total_loss = para_distance*(1 - pytorch_msssim.ssim(S_pred_n, self.S_n, window_size=2)) - para_density*H_info
 
         return (total_loss)
     
