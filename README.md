@@ -20,6 +20,7 @@ devtools::install_github("SuoLab-GZLab/CMAP")
 If you have any queations or dependency package install error, please make sure that you have installed the pacakges in the `Dependency_packages.txt` file. This file also provides install commands of dependency packages.
 
 ## How to run CMAP
+All of these steps take a few hours to complete. 
 
 ### 1. Load the packages and set the path of python and saved directory
 ```
@@ -145,6 +146,7 @@ train_set <- cbind(as.data.frame(t(matrix[,colnames(st_norm)])),label=spatial_lo
 test_set <- as.data.frame(t(matrix[,colnames(sc_norm)]))
 train_set$label = as.factor(train_set$label)
 # Predict spatial domain of individual cells
+# This tuning step requires some time. You can adjust the cross-validation proportion using `cross_para` parameter in the `tune_parameter()` function.
 parameters <- tune_parameter(train_set, test_set, kernel = "radial", scale = TRUE, class.weight = TRUE, verbose = TRUE)
 pred_st_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][['cost']],
                              gamma=parameters[['cross_4']][['gamma']], st_svm=TRUE,verbose = FALSE)
