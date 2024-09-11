@@ -8,16 +8,17 @@ CMAP is an R package that encapsulates python code, for efficiently mapping larg
 This approach allows for progressive refinement of spatial assignments, achieving high accuracy with reduced computational complexity. Unlike existing methods, CMAP achieves sub-spot precision, enabling precise mapping of individual cells within tissues.  
 
 ## How to install CMAP
-To quickly use CMAP, we advice set up a new conda environment:  
+To quickly use CMAP, we recommend setting up a new conda environment:  
 ```conda env create -f CMAP_EnV.environment.yml```
 
-After activate the created enviroment, CMAP R package can be easily installed from Github using devtools (few seconds):  
+After activating the created enviroment, follow the instructions in the `Dependency_packages.txt` file to install the necessary dependency packages. If you encouter any queations or errors during the installation of the dependencies, make sure that all packages listed in the `Dependency_packages.txt` file are installed. This file also provides installation commands for the required dependencies.
 ```
-conda activate CMAP_Env 
+conda activate CMAP_Env
+```
+After that, the CMAP R package can be easily installed from Github using devtools (few seconds):  
+```
 devtools::install_github("SuoLab-GZLab/CMAP")
 ```
-
-If you have any queations or dependency package install error, please make sure that you have installed the pacakges in the `Dependency_packages.txt` file. This file also provides install commands of dependency packages.
 
 ## How to run CMAP
 All of these steps take a few hours to complete. 
