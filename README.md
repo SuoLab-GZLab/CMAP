@@ -11,12 +11,12 @@ This approach allows for progressive refinement of spatial assignments, achievin
 To quickly use CMAP, we recommend setting up a new conda environment:  
 ```conda env create -f CMAP_EnV.environment.yml```
 
-After activating the created enviroment, follow the instructions in the `Dependency_packages.txt` file to install the necessary dependency packages. If you encouter any questions or errors during the installation of the dependencies, make sure that all packages listed in the `Dependency_packages.txt` file are installed. This file also provides installation commands for the required dependencies.
+After activating the created environment, follow the instructions in the `Dependency_packages.txt` file to install the necessary dependency packages. If you encouter any questions or errors during the installation of the dependencies, make sure that all packages listed in the `Dependency_packages.txt` file are installed. This file also provides installation commands for the required dependencies.
 ```
 conda activate CMAP_Env
-```
+```bash
 After that, the CMAP R package can be easily installed from Github using devtools (few seconds):  
-```
+```r
 devtools::install_github("SuoLab-GZLab/CMAP")
 ```
 
