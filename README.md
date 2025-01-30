@@ -187,6 +187,7 @@ sc_meta_coord <- calculate_cell_location(cell_spot_map=cell_spot_map,
 ```
 The exact location are saved in Column 'pred_loc_x' and 'pred_loc_y' of sc_meta_scoord dataframe
 
+```
 color_use <- c("T cell" = "#CE4D4C",
                "B cell" = "#EBC948", 
                "Mast cell" = "#DDBEAD",
@@ -211,4 +212,4 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=cell_type))+
         legend.text=element_text(size=15),
         legend.title=element_text(size=15))+
   guides(color = guide_legend(override.aes = list(size = 4)))
-
+```
