@@ -195,7 +195,7 @@ color_use <- c("T cell" = "#CE4D4C",
                "Cancer cell" = "#5954A4",
                "Epithelial cell" = "#5279BB") 
                
-ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=cell_type))+
+ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
   geom_point(size=0.01)+ 
   theme_bw()+
   scale_color_manual(values = color_use)+
