@@ -48,7 +48,7 @@ You can directly load the expression matrix and meta information.
 sc_count <- read.csv("sc_count.csv",row.names = 1, check.names=FALSE)
 st_count <- read.csv("st_count.csv",row.names = 1, check.names=FALSE)
 sc_meta <- read.csv("sc_meta.csv",row.names = 1, check.names=FALSE)
-`spatial_location` dataframe must be provided two columns (x and y) which are recorded the coordinates of each spot
+# `spatial_location` dataframe must be provided two columns (x and y) which are recorded the coordinates of each spot
 spatial_location <- read.csv("st_meta.csv",row.names = 1, check.names=FALSE)
 ```
 
@@ -187,4 +187,28 @@ sc_meta_coord <- calculate_cell_location(cell_spot_map=cell_spot_map,
 ```
 The exact location are saved in Column 'pred_loc_x' and 'pred_loc_y' of sc_meta_scoord dataframe
 
+color_use <- c("T cell" = "#CE4D4C",
+               "B cell" = "#EBC948", 
+               "Mast cell" = "#DDBEAD",
+               "Myeloid cell" = "#8C564B", 
+               "Cancer cell" = "#5954A4",
+               "Epithelial cell" = "#5279BB") 
+               
+ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=cell_type))+
+  geom_point(size=0.01)+ 
+  theme_bw()+
+  scale_color_manual(values = color_use)+
+  theme(panel.grid.major=element_line(colour=NA), 
+        panel.background = element_rect(fill = "transparent",colour = NA),
+        plot.background = element_rect(fill = "transparent",colour = NA),
+        panel.grid.minor = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())+ 
+  theme(plot.title = element_text(hjust = 0.5)) + 
+  coord_fixed()+
+  labs(x=NULL,y=NULL,color= 'Cell type')+
+  theme(legend.position='right',
+        legend.text=element_text(size=15),
+        legend.title=element_text(size=15))+
+  guides(color = guide_legend(override.aes = list(size = 4)))
 
