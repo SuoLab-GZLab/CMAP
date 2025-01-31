@@ -267,4 +267,5 @@ ggplot(df,aes(x=Rank,y=fold_changes))+
   labs(x='Rank',y='Co-localization score of cell type pairs')+
   theme(legend.position = "none")
 ```
-<img width="183" alt="截屏2025-01-31 17 22 42" src="https://github.com/user-attachments/assets/f1e10020-b3d6-4700-85ed-5318c27256d6" />
+<img width="481" alt="截屏2025-01-31 17 31 31" src="https://github.com/user-attachments/assets/d2395fad-531f-4655-b9d0-3a24815468ce" />
+
