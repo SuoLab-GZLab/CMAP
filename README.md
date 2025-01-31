@@ -215,7 +215,7 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
 ```
 <img width="506" alt="截屏2025-01-31 17 16 04" src="https://github.com/user-attachments/assets/47b59537-6fd2-46d9-98da-4dfc826c5cbc" />
 
-### 7. Cell co-localization analysis
+### 7. Cell type co-localization analysis
 ```
 # `sc_meta_coord` dataframe could be provided a column which is recorded the cell annotation
 # cell_type: the column name
