@@ -250,19 +250,19 @@ df <- cmap_cci[order(cmap_cci$fold_changes,decreasing = TRUE),,drop=FALSE]
 df$Rank <- seq(1,dim(df)[1],1)
 df$label <- ""
 df[rownames(df)=='B cell_T cell','label'] <- 'B cell - T cell'
-options(repr.plot.width = 3, repr.plot.height = 3)  
+
 ggplot(df,aes(x=Rank,y=fold_changes))+
-  geom_point(aes(color=label != ""),size=4)+
+  geom_point(aes(color=label != ""),size=8)+
   scale_color_manual(values = c("TRUE" = "red", "FALSE" = "lightblue"))+ # lightblue
-  geom_text(aes(label = label),hjust = -0.1, vjust = 0.5) +  # 标注文本
+  geom_text(aes(label = label),hjust = -0.1, vjust = 0.5, size = 9) + 
   theme_bw()+
   theme(text = element_text(color = "black"),
         panel.grid.major = element_blank(),  
         panel.grid.minor = element_blank(), 
         panel.border = element_blank(), 
         axis.line = element_line(color = "black"), 
-        axis.title = element_text(color = "black"),
-        axis.text = element_text(color = "black"),
+        axis.title = element_text(color = "black",size = 20),
+        axis.text = element_text(color = "black",size = 20),
         axis.ticks = element_line(color = "black"))+
   labs(x='Rank',y='Co-localization score of cell type pairs')+
   theme(legend.position = "none")
