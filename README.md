@@ -213,3 +213,58 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
         legend.title=element_text(size=15))+
   guides(color = guide_legend(override.aes = list(size = 4)))
 ```
+<img width="506" alt="截屏2025-01-31 17 16 04" src="https://github.com/user-attachments/assets/47b59537-6fd2-46d9-98da-4dfc826c5cbc" />
+
+### 7. Cell co-localization analysis
+```
+# `sc_meta_coord` dataframe could be provided a column which is recorded the cell annotation
+# cell_type: the column name
+col_ct_df_1 <- celltype_colocalization_count(df=sc_meta_coord,cell_type = "celltype_0916")
+cl <- makeCluster(getOption("cl.cores", 20))  
+registerDoParallel(cl)
+permutate_time = 1000
+merge_permu_col_counts <- foreach(i=1:permutate_time) %dopar% {
+  processed_data <- permutate_cell_coordinates(df=sc_meta_coord,cell_type = "celltype_0916")
+  return(processed_data)
+}
+final_df <- do.call(cbind, merge_permu_col_counts)
+stopCluster(cl)
+sub_row <- setdiff(rownames(final_df),paste(unique(sc_meta_coord$celltype_0916),unique(sc_meta_coord$celltype_0916),sep = '_'))
+final_df_filt <- final_df[sub_row,]
+col_ct_df_sub <- col_ct_df_1[sub_row,,drop=FALSE]
+final_df <- final_df_filt
+col_ct_df_1 <- col_ct_df_sub
+local_null_means = apply(final_df,1,mean)
+local_null_sd = apply(final_df,1,sd)
+local_null_sd = pmax(local_null_sd,sqrt(1/1000))
+local_z_scores=(col_ct_df_1-local_null_means)/local_null_sd
+local_p_values = pnorm(local_z_scores$number,lower.tail=FALSE)
+adjusted_local_p_values = stats::p.adjust(local_p_values,method='fdr')
+fold_changes = col_ct_df_1 / (local_null_means + 1e-4)
+contact_result_df = cbind(col_ct_df_1,
+                          fold_changes=fold_changes$number,
+                          p.adj=adjusted_local_p_values,
+                          pval=local_p_values)
+cmap_cci <- contact_result_df[contact_result_df$p.adj < 0.05 & contact_result_df$number > 50,]
+df <- cmap_cci[order(cmap_cci$fold_changes,decreasing = TRUE),,drop=FALSE]
+df$Rank <- seq(1,dim(df)[1],1)
+df$label <- ""
+df[rownames(df)=='B cell_T cell','label'] <- 'B cell - T cell'
+options(repr.plot.width = 3, repr.plot.height = 3)  
+ggplot(df,aes(x=Rank,y=fold_changes))+
+  geom_point(aes(color=label != ""),size=4)+
+  scale_color_manual(values = c("TRUE" = "red", "FALSE" = "lightblue"))+ # lightblue
+  geom_text(aes(label = label),hjust = -0.1, vjust = 0.5) +  # 标注文本
+  theme_bw()+
+  theme(text = element_text(color = "black"),
+        panel.grid.major = element_blank(),  
+        panel.grid.minor = element_blank(), 
+        panel.border = element_blank(), 
+        axis.line = element_line(color = "black"), 
+        axis.title = element_text(color = "black"),
+        axis.text = element_text(color = "black"),
+        axis.ticks = element_line(color = "black"))+
+  labs(x='Rank',y='Co-localization score of cell type pairs')+
+  theme(legend.position = "none")
+```
+<img width="183" alt="截屏2025-01-31 17 22 42" src="https://github.com/user-attachments/assets/f1e10020-b3d6-4700-85ed-5318c27256d6" />
