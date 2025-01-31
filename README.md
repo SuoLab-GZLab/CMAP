@@ -219,6 +219,8 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
 ```
 # `sc_meta_coord` dataframe could be provided a column which is recorded the cell annotation
 # cell_type: the column name
+library(doParallel)
+library(foreach)
 col_ct_df_1 <- celltype_colocalization_count(df=sc_meta_coord,cell_type = "celltype_0916")
 cl <- makeCluster(getOption("cl.cores", 20))  
 registerDoParallel(cl)
