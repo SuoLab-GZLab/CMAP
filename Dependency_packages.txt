@@ -5,7 +5,7 @@ packageurl <- "https://cran.r-project.org/src/contrib/Archive/SeuratObject/Seura
 install.packages(packageurl, repos=NULL, type="source")
 packageurl <- "https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.3.0.tar.gz" 
 install.packages(packageurl, repos=NULL, type="source")
-install.packages(c('ggplot2','e1071','purrr','dplyr','pROC','remotes','devtools','rdist'))
+install.packages(c('ggplot2','e1071','purrr','dplyr','pROC','remotes','devtools','rdist','dbscan','doParallel','foreach'))
 BiocManager::install("preprocessCore", configure.args="--disable-threading", force = TRUE)
 devtools::install_bitbucket("qzhudfci/smfishhmrf-r") 
 devtools::install_github('immunogenomics/singlecellmethods')
@@ -14,7 +14,6 @@ packageurl <- "https://cran.r-project.org/src/contrib/Archive/harmony/harmony_0.
 install.packages(packageurl, repos=NULL, type="source")
 packageurl <- "https://cran.r-project.org/src/contrib/Archive/reticulate/reticulate_1.28.tar.gz" 
 install.packages(packageurl, repos=NULL, type="source")
-
 
 BiocManager::install("S4Vectors")
 conda install -c conda-forge r-clusterr -y # library(ClusterR)
