@@ -216,9 +216,9 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
 <img width="506" alt="截屏2025-01-31 17 16 04" src="https://github.com/user-attachments/assets/47b59537-6fd2-46d9-98da-4dfc826c5cbc" />
 
 ### 7. Cell type co-localization analysis
+`sc_meta_coord` dataframe could be provided a column that stores cell type annotations.
+cell_type: The name of column that stores cell type annotations.
 ```
-# `sc_meta_coord` dataframe could be provided a column that stores cell type annotations.
-# cell_type: The name of column that stores cell type annotations.
 library(doParallel)
 library(foreach)
 col_ct_df_1 <- celltype_colocalization_count(df=sc_meta_coord,cell_type = "celltype_0916")
@@ -248,11 +248,13 @@ contact_result_df = cbind(col_ct_df_1,
                           p.adj=adjusted_local_p_values,
                           pval=local_p_values)
 cmap_cci <- contact_result_df[contact_result_df$p.adj < 0.05 & contact_result_df$number > 50,]
+```
+Plot the colocaliztion results
+```
 df <- cmap_cci[order(cmap_cci$fold_changes,decreasing = TRUE),,drop=FALSE]
 df$Rank <- seq(1,dim(df)[1],1)
 df$label <- ""
 df[rownames(df)=='B cell_T cell','label'] <- 'B cell - T cell'
-
 ggplot(df,aes(x=Rank,y=fold_changes))+
   geom_point(aes(color=label != ""),size=8)+
   scale_color_manual(values = c("TRUE" = "red", "FALSE" = "lightblue"))+ # lightblue
