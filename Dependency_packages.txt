@@ -5,7 +5,7 @@ packageurl <- "https://cran.r-project.org/src/contrib/Archive/SeuratObject/Seura
 install.packages(packageurl, repos=NULL, type="source")
 packageurl <- "https://cran.r-project.org/src/contrib/Archive/Seurat/Seurat_4.3.0.tar.gz" 
 install.packages(packageurl, repos=NULL, type="source")
-install.packages(c('ggplot2','e1071','purrr','dplyr','pROC','remotes','devtools','rdist','dbscan','doParallel','foreach'))
+install.packages(c('ggplot2','e1071','purrr','dplyr','pROC','remotes','devtools','rdist','dbscan','doParallel','foreach','parallel'))
 BiocManager::install("preprocessCore", configure.args="--disable-threading", force = TRUE)
 devtools::install_bitbucket("qzhudfci/smfishhmrf-r") 
 devtools::install_github('immunogenomics/singlecellmethods')
