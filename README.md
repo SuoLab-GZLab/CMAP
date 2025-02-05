@@ -217,8 +217,8 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
 
 ### 7. Cell type co-localization analysis
 ```
-# `sc_meta_coord` dataframe could be provided a column which is recorded the cell annotation
-# cell_type: the column name
+# `sc_meta_coord` dataframe could be provided a column that stores cell type annotations.
+# cell_type: The name of column that stores cell type annotations.
 library(doParallel)
 library(foreach)
 col_ct_df_1 <- celltype_colocalization_count(df=sc_meta_coord,cell_type = "celltype_0916")
@@ -226,7 +226,7 @@ cl <- makeCluster(getOption("cl.cores", 20))
 registerDoParallel(cl)
 permutate_time = 1000
 merge_permu_col_counts <- foreach(i=1:permutate_time) %dopar% {
-  processed_data <- permutate_cell_coordinates(df=sc_meta_coord,cell_type = "celltype_0916")
+  processed_data <- permute_cell_coordinates(df=sc_meta_coord,cell_type = "celltype_0916")
   return(processed_data)
 }
 final_df <- do.call(cbind, merge_permu_col_counts)
