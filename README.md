@@ -217,7 +217,7 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
 
 ### 7. Cell type co-localization analysis
 `sc_meta_coord` dataframe could be provided a column that stores cell type annotations.
-cell_type: The name of column that stores cell type annotations.
+`cell_type` The name of column that stores cell type annotations.
 ```
 library(doParallel)
 library(foreach)
@@ -249,7 +249,7 @@ contact_result_df = cbind(col_ct_df_1,
                           pval=local_p_values)
 cmap_cci <- contact_result_df[contact_result_df$p.adj < 0.05 & contact_result_df$number > 50,]
 ```
-Plot the colocaliztion results
+Plot the colocalization results
 ```
 df <- cmap_cci[order(cmap_cci$fold_changes,decreasing = TRUE),,drop=FALSE]
 df$Rank <- seq(1,dim(df)[1],1)
