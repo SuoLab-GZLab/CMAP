@@ -153,7 +153,9 @@ pred_st_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][[
                              gamma=parameters[['cross_4']][['gamma']], st_svm=TRUE,verbose = FALSE)
 pred_sc_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][['cost']],
                              gamma=parameters[['cross_4']][['gamma']], scale = TRUE, verbose = TRUE)
-# If there exists unmatched cells with spatial tissue, you need to set a tunable threshold to filter out cells with low mapping probability
+```
+If there exists unmatched cells with spatial tissue, you need to set a tunable threshold to filter out cells with low mapping probability
+```
 sc_meta <- sc_meta[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8,] 
 pred_sc_svm <- pred_sc_svm[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8]
 sc_norm <- sc_norm[,rownames(sc_meta)]
