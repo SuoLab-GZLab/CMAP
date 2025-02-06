@@ -84,6 +84,8 @@ st_norm = log1p(sweep(spatial_count,2,Matrix::colSums(spatial_count),FUN = '/') 
 
 ### 3. Use HMRF to do spatial clustering
 ```
+# The optimal number of spatial domains is determined based on the anatomical features of the tissue. In case where the number of domains is unknown, we assess different possible values and select the number that yields the highest average Silhouette width.
+cluster_k <- 3
 # Create specific instructions for Giotto analysis workflow
 instrs <- createGiottoInstructions(save_plot = TRUE,
                                    show_plot = TRUE,
@@ -117,7 +119,7 @@ hmrf_folder = paste0(save_directory,'/11_HMRF')
 if(!file.exists(hmrf_folder)) dir.create(hmrf_folder, recursive = T)
 spatial_genes_selected <- hmrf_spatial_gene(spatial_obj,
                                             kmtest,
-                                            k=3) # k: Number of spatial domains; set according to your data.
+                                            k = cluster_k) # k: Number of spatial domains; set according to your data.
 
 #@ betas: For detailed settings, see https://search.r-project.org/CRAN/refmans/smfishHmrf/html/smfishHmrf.hmrfem.multi.it.min.html
 # For quick results, we recomoned setting betas to 45(non-tumor) or 0(tumor sample).
@@ -125,21 +127,23 @@ spatial_genes_selected <- hmrf_spatial_gene(spatial_obj,
 HMRF_spatial_genes = doHMRF(gobject = spatial_obj,
                             expression_values = 'scaled',
                             spatial_genes = spatial_genes_selected,
-                            k = 3, # This value should match the number of spatial domains (k).
+                            k = cluster_k, # This value should match the number of spatial domains (k).
                             spatial_network_name="KNN_network",
                             betas = c(0, 45, 2), 
                             python_path = python_path,
                             output_folder = paste0(hmrf_folder, '/', 'Spatial_genes/SG_topgenes_elbow_k_scaled'))
 #@betas_to_add: Results from different betas that you want to add
 # Recommendations: Tumor sample: beta=0; Non-tumor: beta=45.
+beta = 0
 spatial_obj = addHMRF(gobject = spatial_obj,
                       HMRFoutput = HMRF_spatial_genes,
-                      k = 3,
-                      betas_to_add = 0,  # according to the above beta settings
+                      k = cluster_k,
+                      betas_to_add = beta,  # according to the above beta settings
                       hmrf_name = 'HMRF')
 # Add spatial domain to spatial metadata. You can also save the spatial_location as an intermediate file, which must include spatial genes and spatial cluster labels.
 spatial_location = spatial_location[as.data.frame(spatial_obj@cell_metadata)[,'cell_ID'],]
-spatial_location = cbind(spatial_location,HMRF_cluster = spatial_obj@cell_metadata$HMRF_k3_b.0) # this coloumn needs to be set as described above (the number of domains and beta)
+column <- paste0('HMRF_k',cluster_k,'_b.',beta)
+spatial_location = cbind(spatial_location,HMRF_cluster = spatial_obj@cell_metadata[,column]) # this coloumn needs to be set as described above (the number of domains and beta)
 st_norm = st_norm[,rownames(spatial_location)]
 ```
 
@@ -151,13 +155,13 @@ test_set <- as.data.frame(t(matrix[,colnames(sc_norm)]))
 train_set$label = as.factor(train_set$label)
 # Predict spatial domain of individual cells
 # This tuning step requires some time. You can adjust the cross-validation proportion using `cross_para` parameter in the `tune_parameter()` function.
-parameters <- tune_parameter(train_set, test_set, kernel = "radial", scale = TRUE, class.weight = TRUE, verbose = TRUE)
+parameters <- tune_parameter(train_set, test_set, kernel = "radial", scale = TRUE, class.weight = TRUE, verbose = TRUE, cross_para=4)
 pred_st_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][['cost']],
                              gamma=parameters[['cross_4']][['gamma']], st_svm=TRUE,verbose = FALSE)
 pred_sc_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][['cost']],
                              gamma=parameters[['cross_4']][['gamma']], scale = TRUE, verbose = TRUE)
 ```
-If there exists unmatched cells with spatial tissue, you need to set a tunable threshold to filter out cells with low mapping probability
+If there exists unmatched cells with spatial tissue, you need to set **a tunable threshold** to filter out cells with low mapping probability
 ```
 sc_meta <- sc_meta[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8,] 
 pred_sc_svm <- pred_sc_svm[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8]
