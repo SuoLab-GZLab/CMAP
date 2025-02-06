@@ -2,7 +2,7 @@
 % Please edit documentation in R/PredictDomain.R
 \name{data_to_transform}
 \alias{data_to_transform}
-\title{Data preprocess}
+\title{Title}
 \usage{
 data_to_transform(
   sc_norm,
@@ -21,5 +21,5 @@ data_to_transform(
 \item{cosine_norm}{}
 }
 \description{
-Data preprocess
+Title
 }

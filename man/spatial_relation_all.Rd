@@ -12,7 +12,16 @@ spatial_relation_all(
 )
 }
 \arguments{
-\item{dis_cut}{}
+\item{spatial_location}{A dataframe of spots, column \code{x} \code{y} storing the x-coordinate and y-coordinate values.}
+
+\item{spatial_data_type}{Type of spatial data, honeycomb or square or singlecell level}
+
+\item{n_near_spot}{Number of neighboring spots}
+
+\item{dis_cut}{The cutoff distance used to define neighboring spots.}
+}
+\value{
+A list including three sublist, storing the neighboring spots, left and right of spots, up and down spots
 }
 \description{
 Calculate the adjacent spots of central spots

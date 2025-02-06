@@ -4,10 +4,17 @@
 \alias{cor_spot_cell}
 \title{Calculate the correlation between spots and cells}
 \usage{
-cor_spot_cell(sc_norm, st_norm, genes, batch = TRUE)
+cor_spot_cell(
+  sc_norm,
+  st_norm,
+  genes,
+  batch = TRUE,
+  pca_method = c("prcomp", "prcomp_irlba"),
+  parallel = FALSE
+)
 }
 \arguments{
-\item{batch}{}
+\item{parallel}{When applied to big data, should set parallel TRUE. Default is FALSE.}
 }
 \description{
 Calculate the correlation between spots and cells

@@ -2,7 +2,7 @@
 % Please edit documentation in R/PredictDomain.R
 \name{scale_data_by_column}
 \alias{scale_data_by_column}
-\title{Scale}
+\title{Scale test data to the same scale with the traning data}
 \usage{
 scale_data_by_column(train_set, test_set)
 }
@@ -11,6 +11,9 @@ scale_data_by_column(train_set, test_set)
 
 \item{test_set}{cell*gene}
 }
+\value{
+A list including train and test matrics
+}
 \description{
-Scale data to \link{0,1} as SVM input
+Scale test data to the same scale with the traning data
 }

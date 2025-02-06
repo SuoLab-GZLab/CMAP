@@ -2,7 +2,7 @@
 % Please edit documentation in R/CellMapToSpot.R
 \name{map_cell_to_spot}
 \alias{map_cell_to_spot}
-\title{Version_3: SSIM_Map}
+\title{Level 2 mapping (OptimalSpot), globally optimizing the assigned spots of cells within each domain}
 \usage{
 map_cell_to_spot(
   sc_norm,
@@ -10,6 +10,7 @@ map_cell_to_spot(
   st_norm,
   spatial_location,
   batch = TRUE,
+  st_gene_list = NULL,
   pca_method = "prcomp_irlba",
   pred_sc_svm,
   pred_st_svm,
@@ -20,8 +21,27 @@ map_cell_to_spot(
 )
 }
 \arguments{
-\item{pca_method}{}
+\item{batch}{Whether do batch removal or not.}
+
+\item{st_gene_list}{The spatial gene lists of each domain}
+
+\item{pca_method}{Select the PCA function, support \code{prcomp_irlba} or \code{prcomp}.}
+
+\item{pred_sc_svm}{The vector storing the predicted domain label of cells and the vector name is the cell id}
+
+\item{pred_st_svm}{The vector storing the predicted domain label of spots and the vector name is the spot id}
+
+\item{python_path}{Provide the path of called python}
+
+\item{num_epochs}{The number of epochs}
+
+\item{para_distance}{The weight of expression pattern similarity}
+
+\item{para_density}{The weight of cellular spatial density}
+}
+\value{
+A dataframe storing the corresponding relationship between cells and spots.
 }
 \description{
-Version_3: SSIM_Map
+Level 2 mapping (OptimalSpot), globally optimizing the assigned spots of cells within each domain
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Harmony_embedding.R
 \name{harmony_embedding}
 \alias{harmony_embedding}
-\title{Title}
+\title{Use harmony to remove the batch effect}
 \usage{
 harmony_embedding(
   st_norm,
@@ -20,10 +20,12 @@ harmony_embedding(
 \arguments{
 \item{st_norm}{gene * spot}
 
+\item{sc_norm}{gene * cell}
+
 \item{nclust}{round(nrow(meta_data)/30)}
 
-\item{pca_method}{}
+\item{cosine_norm}{}
 }
 \description{
-Title
+Use harmony to remove the batch effect
 }

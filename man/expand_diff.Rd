@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExactLocation.R
 \name{expand_diff}
 \alias{expand_diff}
-\title{Title}
+\title{Expand the difference}
 \usage{
 expand_diff(x)
 }
@@ -10,5 +10,5 @@ expand_diff(x)
 \item{x}{}
 }
 \description{
-Title
+Expand the difference
 }

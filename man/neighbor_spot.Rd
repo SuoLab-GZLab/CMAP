@@ -2,7 +2,7 @@
 % Please edit documentation in R/ExactLocation.R
 \name{neighbor_spot}
 \alias{neighbor_spot}
-\title{neighbor spots used in Spring model}
+\title{Extract the neighboring spots for each spot}
 \usage{
 neighbor_spot(spot_neigh_list, top_sim_spot)
 }
@@ -10,5 +10,5 @@ neighbor_spot(spot_neigh_list, top_sim_spot)
 \item{top_sim_spot}{}
 }
 \description{
-neighbor spots used in Spring model
+Extract the neighboring spots for each spot
 }

@@ -11,6 +11,9 @@ calculate_cell_location(
   sc_norm,
   st_norm,
   batch = TRUE,
+  pca_method = "prcomp_irlba",
+  parallel = FALSE,
+  st_gene_list = NULL,
   spot_neigh_list,
   radius = 1/2
 )

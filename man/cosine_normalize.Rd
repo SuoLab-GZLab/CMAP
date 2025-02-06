@@ -2,13 +2,17 @@
 % Please edit documentation in R/Harmony_embedding.R
 \name{cosine_normalize}
 \alias{cosine_normalize}
-\title{Title}
+\title{Cosine normalization}
 \usage{
 cosine_normalize(X, MARGIN = 1, do_safe = TRUE)
 }
 \arguments{
+\item{X}{Matrix}
+
+\item{MARGIN}{row (1) or column (2)}
+
 \item{do_safe}{}
 }
 \description{
-Title
+Cosine normalization
 }

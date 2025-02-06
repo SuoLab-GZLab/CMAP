@@ -7,7 +7,11 @@
 map_spot_genes(sc_norm, sc_meta, st_norm, spatial_location)
 }
 \arguments{
-\item{spatial_location}{}
+\item{sc_norm}{A gene * cell matrix}
+
+\item{sc_meta}{A dataframe of cells}
+
+\item{spatial_location}{A dataframe of spots, column \code{HMRF_cluster} containing the spatial domain label.}
 }
 \description{
 Calculate the spatial variable genes

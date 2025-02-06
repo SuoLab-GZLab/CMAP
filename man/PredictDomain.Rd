@@ -25,7 +25,7 @@ PredictDomain(
 
 \item{class.weight}{whether considering data imbalance}
 
-\item{st_svm}{}
+\item{st_svm}{Return the prediction of spatial data}
 }
 \description{
 Predict the spatial domain

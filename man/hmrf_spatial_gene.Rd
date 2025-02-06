@@ -2,7 +2,7 @@
 % Please edit documentation in R/HMRF_gene.R
 \name{hmrf_spatial_gene}
 \alias{hmrf_spatial_gene}
-\title{Title}
+\title{Calculate the HMRF genes}
 \usage{
 hmrf_spatial_gene(
   spatial_obj,
@@ -17,14 +17,25 @@ hmrf_spatial_gene(
 )
 }
 \arguments{
-\item{k}{: the number of spatial domain}
+\item{spatial_obj}{Hmrf_object}
 
-\item{spatial_network_name}{}
+\item{k}{The number of spatial domain; should be adjusted according to different datasets.}
 
-\item{spatial_obj:}{hmrf_object}
+\item{filter_hbb}{Filter the hbb related genes, TRUE or FALSE}
 
-\item{filter_hbb:}{TRUE or FALSE}
+\item{gene_sampling_from_top}{Total spatial genes before sampling}
+
+\item{use_spatial_genes}{Which of Giotto's spatial genes to use}
+
+\item{filter_method}{Filter genes by top or by elbow method, prior to sampling}
+
+\item{gene_samples}{The number of extracted genes}
+
+\item{spatial_network_name}{Name of spatial network to use for HMRF}
+}
+\value{
+Reference: https://rdrr.io/github/RubD/Giotto/src/R/python_hmrf.R
 }
 \description{
-Title
+Calculate the HMRF genes
 }
