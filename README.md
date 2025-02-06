@@ -21,10 +21,10 @@ devtools::install_github("SuoLab-GZLab/CMAP")
 ```
 
 ## How to run CMAP
-All of these steps take a few hours to complete. 
+The entire process requires a few hours to complete. We have made the MOB dataset available for users to reproduce the mapping results. You can download the simulation data from the following link (https://www.dropbox.com/scl/fo/e06uibevb368ej2v97tpp/APeWNuEbkILSyvS0b0dB2kA?rlkey=nxz6481jurujtm6ecqm4tf7v9&st=i9ho1q34&dl=0). The corresponding code (`MOB.CMAP.R` and `MOB.CMAP.ipynb`) is provided for your convenience.
 
 ### 1. Load the packages and set the path of python and saved directory
-```
+```r
 library(CMAP) 
 library(Seurat) 
 library(e1071)
@@ -40,23 +40,25 @@ use_condaenv(python_path)
 save_directory <- "/home/save/directory"
 if(!file.exists(save_directory)) dir.create(save_directory, recursive = T)
 ```
-### 2. Load scRNA-seq and ST data, respectively
-#### We support processed seurat object and expression matrix, two formats, as input files.
+### 2. Load scRNA-seq and ST data
+#### Input formats supported:
+CMAP supports two input formats: a processed Seurat object and an expression matrix.
 
-You can directly load the expression matrix and meta information. The expression matrix must be genes (rows) by cells (columns).
+You can directly load the expression matrix along with its corresponding meta-information. The expression matrix should have genes as rows and cells as columns.
 
-`spatial_location` dataframe must be provided two columns (x and y) which are recorded the coordinates of each spot. 
-`sc_meta` dataframe could be provided the annoatated cell type, if not, this is no matter for the mapping prediction.
+`spatial_location` A dataframe must contain two columns (x and y), representing the spatial coordinates of each spot. 
 
-If you are not sure for the standard formation of input files, you can download the demo datasets and followed the below process to adjust the format for your task.
-```
+`sc_meta` A dataframe may include annotated cell type information; however, if this is not provided, it will not affect the performance of the CMAP mapping prediction.
+
+If you are uncertain about the required input file formats, you can download the provided demo datasets and follow the outlined steps to adjust your data to the appropriate format for your analysis.
+```r
 sc_count <- read.csv("sc_count.csv",row.names = 1, check.names=FALSE)
 st_count <- read.csv("st_count.csv",row.names = 1, check.names=FALSE)
 sc_meta <- read.csv("sc_meta.csv",row.names = 1, check.names=FALSE)
 spatial_location <- read.csv("st_meta.csv",row.names = 1, check.names=FALSE)
 ```
-You can also load the created Seurat objects. Here, we have provided demo datasets for testing (https://www.dropbox.com/scl/fi/q9axwdl8i5ukoctip12ro/CMAP.Demo.Lung_tumor.Data.Rdata?rlkey=an9l3kchva5yn5i80lqg1v0fv&st=jyvymggp&dl=0). Besides, we also provided the MOB data (https://www.dropbox.com/scl/fo/e06uibevb368ej2v97tpp/APeWNuEbkILSyvS0b0dB2kA?rlkey=nxz6481jurujtm6ecqm4tf7v9&st=i9ho1q34&dl=0) and code for users to reproduce the mapping results.
-```
+You can also load the created Seurat objects. Here, we have provided demo datasets for testing (https://www.dropbox.com/scl/fi/q9axwdl8i5ukoctip12ro/CMAP.Demo.Lung_tumor.Data.Rdata?rlkey=an9l3kchva5yn5i80lqg1v0fv&st=jyvymggp&dl=0).
+```r
 load("CMAP.Demo.Lung_tumor.Data.Rdata")
 sc_counts <- sc_object@assays$RNA@counts
 sc_meta <- data.frame(sc_object@meta.data,row.names=rownames(sc_object@meta.data))
@@ -74,7 +76,7 @@ spatial_location <- cbind(spatial_location,
 ```
 
 Normalize the data
-```
+```r
 sc_counts <- sc_counts[rowSums(sc_counts)>0,]
 sc_norm = as.matrix(log1p(sweep(sc_counts,2,Matrix::colSums(sc_counts),FUN = '/') * 1e4))
 
@@ -83,8 +85,8 @@ st_norm = log1p(sweep(spatial_count,2,Matrix::colSums(spatial_count),FUN = '/') 
 ```
 
 ### 3. Use HMRF to do spatial clustering
-```
-# The optimal number of spatial domains is determined based on the anatomical features of the tissue. In case where the number of domains is unknown, we assess different possible values and select the number that yields the highest average Silhouette width.
+The optimal number of spatial domains is determined based on the anatomical features of the tissue. In case where the number of domains is unknown, we assess different possible values and select the number that yields the highest average Silhouette width.
+```r
 cluster_k <- 3
 # Create specific instructions for Giotto analysis workflow
 instrs <- createGiottoInstructions(save_plot = TRUE,
@@ -148,7 +150,7 @@ st_norm = st_norm[,rownames(spatial_location)]
 ```
 
 ### 4. Level 1 mapping (DomainDivision), dividing cells into different spatial domains
-```
+```r
 matrix <- data_to_transform(sc_norm,st_norm,spatial_genes_selected,batch=TRUE,pca_method='prcomp_irlba')
 train_set <- cbind(as.data.frame(t(matrix[,colnames(st_norm)])),label=spatial_location$HMRF_cluster)
 test_set <- as.data.frame(t(matrix[,colnames(sc_norm)]))
@@ -162,14 +164,14 @@ pred_sc_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][[
                              gamma=parameters[['cross_4']][['gamma']], scale = TRUE, verbose = TRUE)
 ```
 If there exists unmatched cells with spatial tissue, you need to set **a tunable threshold** to filter out cells with low mapping probability
-```
+```r
 sc_meta <- sc_meta[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8,] 
 pred_sc_svm <- pred_sc_svm[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8]
 sc_norm <- sc_norm[,rownames(sc_meta)]
 ```
 
 ### 5. Level 2 mapping (OptimalSpot), globally optimizing the assigned spots of cells within each domain
-```
+```r
 cell_spot_map <- map_cell_to_spot(sc_norm=sc_norm,sc_meta=sc_meta,
                                   st_norm=st_norm,spatial_location=spatial_location,
                                   pred_sc_svm=pred_sc_svm, pred_st_svm=pred_st_svm,
@@ -181,7 +183,7 @@ cell_spot_map <- map_cell_to_spot(sc_norm=sc_norm,sc_meta=sc_meta,
 ```
 
 ### 6. Level 3 mapping (PreciseLocation), giving each cell an exact location
-```
+```r
 spot_neigh_list <- spatial_relation_all(spatial_location,
                                         spatial_data_type=c('honeycomb'))
 
@@ -190,20 +192,22 @@ sc_meta_coord <- calculate_cell_location(cell_spot_map=cell_spot_map,
                                          sc_meta=sc_meta,
                                          sc_norm=sc_norm,
                                          st_norm=st_norm,
+                                         parallel = TRUE,                   
                                          batch = TRUE,
                                          spot_neigh_list=spot_neigh_list,
                                          radius = 1/2)
 ```
-#### Output: the exact locations are saved in Column `pred_loc_x` and `pred_loc_y` of sc_meta_scoord dataframe. We can use them to do the downstream analyses. 
-#### Plot the spatial distributions of cells
-```
+#### Output: 
+The predicted spatial locations are saved in the columns pred_loc_x and pred_loc_y of the sc_meta_scoord dataframe. These coordinates can be utilized for downstream analyses.
+
+Plot the spatial distributions of cells
+```r
 color_use <- c("T cell" = "#CE4D4C",
                "B cell" = "#EBC948", 
                "Mast cell" = "#DDBEAD",
                "Myeloid cell" = "#8C564B", 
                "Cancer cell" = "#5954A4",
-               "Epithelial cell" = "#5279BB") 
-               
+               "Epithelial cell" = "#5279BB")    
 ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
   geom_point(size=0.01)+ 
   theme_bw()+
@@ -225,9 +229,9 @@ ggplot(sc_meta_coord,aes(pred_loc_x,pred_loc_y,color=celltype_0916))+
 <img width="506" alt="截屏2025-01-31 17 16 04" src="https://github.com/user-attachments/assets/47b59537-6fd2-46d9-98da-4dfc826c5cbc" />
 
 ### 7. Cell type co-localization analysis
-`sc_meta_coord` dataframe could be provided a column that stores cell type annotations.
-`cell_type` The name of column that stores cell type annotations.
-```
+`sc_meta_coord` A dataframe that included cell type annotations.
+`cell_type` The name of column containing cell type annotations in the dataframe.
+```r
 library(doParallel)
 library(foreach)
 col_ct_df_1 <- celltype_colocalization_count(df=sc_meta_coord,cell_type = "celltype_0916")
@@ -259,7 +263,7 @@ contact_result_df = cbind(col_ct_df_1,
 cmap_cci <- contact_result_df[contact_result_df$p.adj < 0.05 & contact_result_df$number > 50,]
 ```
 Plot the colocalization results
-```
+```r
 df <- cmap_cci[order(cmap_cci$fold_changes,decreasing = TRUE),,drop=FALSE]
 df$Rank <- seq(1,dim(df)[1],1)
 df$label <- ""
