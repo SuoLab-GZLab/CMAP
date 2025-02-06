@@ -30,10 +30,8 @@ permute_cell_coordinates(
 A dataframe with the randomly shifted cell positions and corresponding colocalization counts.
 
 Reference: zhang et al. (2023): https://github.com/ZhuangLab/whole_mouse_brain_MERFISH_atlas_scripts_2023/blob/main/scripts/cell_cell_contacts/randomize_and_count_cell_cell_contacts_15um.ipynb
+In the lung cancer datasets, the coordinates are scaled such that a distance of 25 equals 100μm.
 }
 \description{
 Randomly shift the spatial localtion of each cell to a random position within 100 μm from its original location
-}
-\examples{
-In the lung cancer datasets, the coordinates are scaled such that a distance of 25 equals 100μm.
 }
