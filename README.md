@@ -41,17 +41,18 @@ save_directory <- "/home/save/directory"
 if(!file.exists(save_directory)) dir.create(save_directory, recursive = T)
 ```
 ### 2. Load scRNA-seq and ST data, respectively   
-We support seurat object and expression matrix, two formats, as input files.
+We support processed seurat object and expression matrix, two formats, as input files.
 
-You can directly load the expression matrix and meta information. 
+You can directly load the expression matrix and meta information. The expression matrix must be genes (rows) by cells (columns).
+`spatial_location` dataframe must be provided two columns (x and y) which are recorded the coordinates of each spot. 
+`sc_meta` dataframe could be provided the annoatated cell type, if not, this is no matter for the mapping prediction.
+If you are not sure for the standard formation of input files, you can download the demo datasets and followed the below process to adjust the format for your task.
 ```
 sc_count <- read.csv("sc_count.csv",row.names = 1, check.names=FALSE)
 st_count <- read.csv("st_count.csv",row.names = 1, check.names=FALSE)
 sc_meta <- read.csv("sc_meta.csv",row.names = 1, check.names=FALSE)
-# `spatial_location` dataframe must be provided two columns (x and y) which are recorded the coordinates of each spot
 spatial_location <- read.csv("st_meta.csv",row.names = 1, check.names=FALSE)
 ```
-
 You can also load the created Seurat objects. Here, we have provided demo datasets for testing (https://www.dropbox.com/scl/fi/q9axwdl8i5ukoctip12ro/CMAP.Demo.Lung_tumor.Data.Rdata?rlkey=an9l3kchva5yn5i80lqg1v0fv&st=jyvymggp&dl=0). Besides, we also provided the MOB data (https://www.dropbox.com/scl/fo/e06uibevb368ej2v97tpp/APeWNuEbkILSyvS0b0dB2kA?rlkey=nxz6481jurujtm6ecqm4tf7v9&st=i9ho1q34&dl=0) and code for users to reproduce the mapping results.
 ```
 load("CMAP.Demo.Lung_tumor.Data.Rdata")
@@ -187,8 +188,8 @@ sc_meta_coord <- calculate_cell_location(cell_spot_map=cell_spot_map,
                                          spot_neigh_list=spot_neigh_list,
                                          radius = 1/2)
 ```
-The exact location are saved in Column 'pred_loc_x' and 'pred_loc_y' of sc_meta_scoord dataframe
-
+The exact locations are saved in Column `pred_loc_x` and `pred_loc_y` of sc_meta_scoord dataframe. We can use them to do the downstream analyses. 
+###### Plot the spatial distributions of cells
 ```
 color_use <- c("T cell" = "#CE4D4C",
                "B cell" = "#EBC948", 
