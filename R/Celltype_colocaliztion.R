@@ -73,11 +73,11 @@ celltype_colocalization_count = function(df,
 #' @return A dataframe with the randomly shifted cell positions and corresponding colocalization counts.
 #'
 #' Reference: zhang et al. (2023): https://github.com/ZhuangLab/whole_mouse_brain_MERFISH_atlas_scripts_2023/blob/main/scripts/cell_cell_contacts/randomize_and_count_cell_cell_contacts_15um.ipynb
+#' In the lung cancer datasets, the coordinates are scaled such that a distance of 25 equals 100μm.
 #'
 #' @export
 #'
 #' @examples
-#' In the lung cancer datasets, the coordinates are scaled such that a distance of 25 equals 100μm.
 permute_cell_coordinates = function(radius_permute=25,
                                       df,
                                       x='pred_loc_x',
