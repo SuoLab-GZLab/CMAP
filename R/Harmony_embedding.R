@@ -1,14 +1,14 @@
-#' Title
+#' Cosine normalization
 #'
-#' @param X
-#' @param MARGIN
+#' @param X Matrix
+#' @param MARGIN row (1) or column (2)
 #' @param do_safe
 #'
 #' @return
 #' @export
 #'
 #' @examples
-cosine_normalize <- function(X, MARGIN = 1, do_safe = TRUE) {
+cosine_normalize = function(X, MARGIN = 1, do_safe = TRUE) {
   # to avoid Inf values, first divide by max
   if (do_safe) {
     X <- sweep(X, MARGIN, apply(X, MARGIN, max), "/")
@@ -16,26 +16,33 @@ cosine_normalize <- function(X, MARGIN = 1, do_safe = TRUE) {
   sweep(X, MARGIN, apply(X, MARGIN, function(x) sqrt(sum(x^2))), "/")
 }
 
-#' Title
+#' Use harmony to remove the batch effect
 #'
-#' @param st_norm  gene * spot
-#' @param sc_norm
+#' @param st_norm gene * spot
+#' @param sc_norm gene * cell
 #' @param genes
 #' @param batch
 #' @param npc
 #' @param nclust round(nrow(meta_data)/30)
+#' @param pca_method
 #' @param max.iter.harmony
 #' @param max.iter.cluster
 #' @param cosine_norm
-#' @param pca_method
 #'
 #' @return
 #' @export
 #'
 #' @examples
-harmony_embedding <- function(st_norm,sc_norm,genes,batch=TRUE,npc = 100,nclust=100,
-                              pca_method=c('prcomp','prcomp_irlba'),
-                              max.iter.harmony=50,max.iter.cluster=6,cosine_norm=FALSE){
+harmony_embedding = function(st_norm,
+                             sc_norm,
+                             genes,
+                             batch=TRUE,
+                             npc = 100,
+                             nclust=100,
+                             pca_method=c('prcomp','prcomp_irlba'),
+                             max.iter.harmony=50,
+                             max.iter.cluster=6,
+                             cosine_norm=FALSE){
 
   pca_method = match.arg(pca_method, choices = c('prcomp','prcomp_irlba'))
 
@@ -69,13 +76,13 @@ harmony_embedding <- function(st_norm,sc_norm,genes,batch=TRUE,npc = 100,nclust=
   }else{
     set.seed(123)
     # retx=TRUE:
-    pca_res <- prcomp(t(exprs_cosine), npc, center = FALSE, scale. = FALSE)
+    pca_res <- prcomp(t(exprs_cosine), center = FALSE, scale. = FALSE)
   }
 
   # Do harmony
   set.seed(123)
   harmonyObj <- harmony::HarmonyMatrix(
-    data_mat = pca_res$x, ## PCA embedding matrix of cells
+    data_mat = pca_res$x[,1:npc], ## PCA embedding matrix of cells
     meta_data = meta_data, ## dataframe with cell labels
     theta = 1, ## cluster diversity enforcement
     vars_use = 'dataset', ## variable to integrate out
@@ -89,7 +96,9 @@ harmony_embedding <- function(st_norm,sc_norm,genes,batch=TRUE,npc = 100,nclust=
 
   matrix <- t(rbind(harmonyObj[which(meta_data$dataset=='SingleCell'),,drop=FALSE],
                     harmonyObj[which(meta_data$dataset=='Spatial'),,drop=FALSE]))
-  colnames(matrix) <- c(meta_data[meta_data$dataset=='SingleCell','id'],meta_data[meta_data$dataset=='Spatial','id'])
+  colnames(matrix) <- c(meta_data[meta_data$dataset=='SingleCell','id'],
+                        meta_data[meta_data$dataset=='Spatial','id'])
 
   return(matrix)
 }
+

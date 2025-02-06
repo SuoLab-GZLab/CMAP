@@ -1,4 +1,4 @@
-#' Data preprocess
+#' Title
 #'
 #' @param sc_norm
 #' @param st_norm
@@ -19,11 +19,12 @@ data_to_transform = function(sc_norm,
                              st_norm,
                              spatial_genes,
                              batch=TRUE,
-                             npc= 100,nclust= 100,pca_method = c("prcomp", "prcomp_irlba"),
+                             npc= 100,
+                             nclust= 100,
+                             pca_method = c("prcomp", "prcomp_irlba"),
                              max.iter.harmony = 50,
-                             max.iter.cluster = 6, cosine_norm = FALSE
-
-){
+                             max.iter.cluster = 6,
+                             cosine_norm = FALSE){
   pca_method = match.arg(pca_method, choices = c('prcomp','prcomp_irlba'))
   genes <- intersect(spatial_genes,rownames(sc_norm))
   st_qm = preprocessCore::normalize.quantiles(as.matrix(st_norm[genes,,drop=FALSE]),keep.names = TRUE)
@@ -45,18 +46,15 @@ data_to_transform = function(sc_norm,
   return(matrix)
 }
 
-
-
-
-
-#' @title Scale
-#' @description Scale data to [0,1] as SVM input
+#' Scale test data to the same scale with the traning data
+#'
 #' @param train_set spot*gene
 #' @param test_set cell*gene
-#' @examples
+#'
+#' @return  A list including train and test matrics
 #' @export
-#' @return
-# a list including train and test matrics
+#'
+#' @examples
 scale_data_by_column <- function(train_set,test_set){
   tmp.train = train_set
   tmp.test = test_set
@@ -82,15 +80,21 @@ scale_data_by_column <- function(train_set,test_set){
 #' @param gamma
 #' @param verbose
 #' @param kernel
-#' @param st_svm
+#' @param st_svm Return the prediction of spatial data
 #'
 #' @return
 #' @export
 #'
 #' @examples
-PredictDomain <- function(train_set, test_set, scale=TRUE, class.weight=TRUE,
-                          cost=1, gamma=1/ncol(test_set), kernel = "radial",
-                          st_svm=FALSE, verbose=FALSE){
+PredictDomain <- function(train_set,
+                          test_set,
+                          scale=TRUE,
+                          class.weight=TRUE,
+                          cost=1,
+                          gamma=1/ncol(test_set),
+                          kernel = "radial",
+                          st_svm=FALSE,
+                          verbose=FALSE){
   # scale to [0,1]
   if(scale){
     scale_data = scale_data_by_column(train_set,test_set)
@@ -143,8 +147,13 @@ PredictDomain <- function(train_set, test_set, scale=TRUE, class.weight=TRUE,
 #' @export
 #'
 #' @examples
-tune_parameter <- function(train_set,test_set,scale=TRUE,class.weight=TRUE,
-                           kernel="radial",verbose=FALSE, cross_para=c(4,6,8,10)){
+tune_parameter <- function(train_set,
+                           test_set,
+                           scale=TRUE,
+                           class.weight=TRUE,
+                           kernel="radial",
+                           verbose=FALSE,
+                           cross_para=c(4,6,8,10)){
   parameter <- list()
 
   # scale to [0,1]

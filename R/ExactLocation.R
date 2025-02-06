@@ -1,11 +1,11 @@
 #' Calculate the adjacent spots of central spots
 #'
-#' @param spatial_location
-#' @param spatial_data_type
-#' @param n_near_spot
-#' @param dis_cut
+#' @param spatial_location A dataframe of spots, column `x` `y` storing the x-coordinate and y-coordinate values.
+#' @param spatial_data_type Type of spatial data, honeycomb or square or singlecell level
+#' @param n_near_spot Number of neighboring spots
+#' @param dis_cut The cutoff distance used to define neighboring spots.
 #'
-#' @return
+#' @return A list including three sublist, storing the neighboring spots, left and right of spots, up and down spots
 #' @export
 #'
 #' @examples
@@ -13,16 +13,17 @@ spatial_relation_all = function(spatial_location,
                                 spatial_data_type=c('honeycomb','square','singlecell_level'),
                                 n_near_spot=NULL,
                                 dis_cut=NULL){
+
   spatial_data_type = match.arg(spatial_data_type, choices = c('honeycomb','square','singlecell_level'))
 
   if(spatial_data_type=='honeycomb'){
-    top_n = 7
+    top_n = 6
     cutoff = 30 # normally, 23.9/24.8/25.1
   }else if(spatial_data_type=='square'){
-    top_n = 5
+    top_n = 4
     cutoff = 30
   }else if(spatial_data_type=='singlecell_level'){
-    top_n = 5
+    top_n = 4
     cutoff = 10
   }
 
@@ -34,19 +35,17 @@ spatial_relation_all = function(spatial_location,
     top_n = n_near_spot
   }
 
-  spot_dis <- rdist::pdist(spatial_location[,c('x','y')])
-  rownames(spot_dis) <- rownames(spatial_location)
-  colnames(spot_dis) <- rownames(spatial_location)
-  # The following results are ordered(from near to far), column is spot_id
-  spot_dis_order = apply(spot_dis,1,function(x){sort(x)})
-  spot_dis_order_id = apply(spot_dis,1,function(x){names(sort(x))})
-  tmp <- spot_dis
-  spot_neigh <- list()
-  for(i in 1:dim(tmp)[1]){
-    spot_neigh[[i]] <- spot_dis_order_id[,i][1:top_n][spot_dis_order[1:top_n,i] < cutoff]
-  }
-  df_j_all <- spot_neigh # include itself
-  names(df_j_all) <- colnames(tmp)
+  tmp <- dbscan::kNN(na.omit(spatial_location[, c('x', 'y')]), k=top_n)
+  spot_dis <- tmp$dist
+  spot_dis_bool <- spot_dis < cutoff
+  spot_dis_order_id <- tmp$id
+
+  df_j_all <- list()
+  num_cores <- parallel::detectCores() - 1
+  df_j_all <- parallel::mclapply(1:dim(spot_dis_order_id)[1], function(i) {
+    c(rownames(spot_dis_order_id)[spot_dis_order_id[i, ][spot_dis_bool[i, ]]],rownames(spot_dis_order_id)[i])
+  }, mc.cores = num_cores)
+  names(df_j_all) <- rownames(spot_dis_order_id) # include itself
 
   df_j_up_down=list()
   df_j_left_right=list()
@@ -61,29 +60,38 @@ spatial_relation_all = function(spatial_location,
     return(spot_neigh_list)
   }
 
+  result <- parallel::mclapply(names(df_j_all), function(spot_i) {
+    df_j_up_down <- list()
+    df_j_left_right <- list()
 
-  for(spot_i in names(df_j_all)){
-    if(length(df_j_all[[spot_i]])==1){
+    if(length(df_j_all[[spot_i]]) == 1){
       df_j_up_down[[spot_i]] <- c()
       df_j_left_right[[spot_i]] <- c()
-      next
+      return(list(df_j_up_down = df_j_up_down, df_j_left_right = df_j_left_right))
     }
 
-    near_spot_id <- spatial_location[setdiff(df_j_all[[spot_i]],spot_i),c('x','y'),drop=FALSE]
-    central_spot <- spatial_location[spot_i,c('x','y'),drop=FALSE]
+    near_spot_id <- spatial_location[setdiff(df_j_all[[spot_i]],spot_i), c('x', 'y'), drop = FALSE]
+    central_spot <- spatial_location[spot_i, c('x', 'y'), drop = FALSE]
 
-    if(any(round(near_spot_id$y) %in% c(round(central_spot$y),ceiling(central_spot$y),floor(central_spot$y)))){
-      df_j_left_right[[spot_i]] <- rownames(near_spot_id)[which(round(near_spot_id$y) %in% c(round(central_spot$y),ceiling(central_spot$y),floor(central_spot$y)))]
-      df_j_up_down[[spot_i]] <- setdiff(rownames(near_spot_id),df_j_left_right[[spot_i]])
-    }else if(any(round(near_spot_id$x) %in% c(round(central_spot$x),ceiling(central_spot$x),floor(central_spot$x)))){
-      df_j_up_down[[spot_i]] <- rownames(near_spot_id)[which(round(near_spot_id$x) %in% c(round(central_spot$x),ceiling(central_spot$x),floor(central_spot$x)))]
-      df_j_left_right[[spot_i]] <- setdiff(rownames(near_spot_id),df_j_up_down[[spot_i]])
-    }else{
+    cent_s_y <- c(round(central_spot$y), ceiling(central_spot$y), floor(central_spot$y))
+    cent_s_x <- c(round(central_spot$y), ceiling(central_spot$y), floor(central_spot$y))
+    if(any(round(near_spot_id$y) %in% cent_s_y)){
+      df_j_left_right[[spot_i]] <- rownames(near_spot_id)[which(round(near_spot_id$y) %in% cent_s_y)]
+      df_j_up_down[[spot_i]] <- setdiff(rownames(near_spot_id), df_j_left_right[[spot_i]])
+    } else if(any(round(near_spot_id$x) %in% cent_s_x)){
+      df_j_up_down[[spot_i]] <- rownames(near_spot_id)[which(round(near_spot_id$x) %in% cent_s_x)]
+      df_j_left_right[[spot_i]] <- setdiff(rownames(near_spot_id), df_j_up_down[[spot_i]])
+    } else {
       df_j_left_right[[spot_i]] <- rownames(near_spot_id)
       df_j_up_down[[spot_i]] <- rownames(near_spot_id)
     }
 
-  }
+    return(list(df_j_up_down = df_j_up_down, df_j_left_right = df_j_left_right))
+  }, mc.cores = num_cores)
+
+  df_j_up_down <- do.call(c, lapply(result, `[[`, "df_j_up_down"))
+  df_j_left_right <- do.call(c, lapply(result, `[[`, "df_j_left_right"))
+
 
   spot_neigh_list <- list(all=df_j_all,
                           left_right=df_j_left_right,
@@ -92,8 +100,9 @@ spatial_relation_all = function(spatial_location,
   return(spot_neigh_list)
 }
 
-#' neighbor spots used in Spring model
+#' Extract the neighboring spots for each spot
 #'
+#' @param spot_neigh_list
 #' @param top_sim_spot
 #'
 #' @return
@@ -123,7 +132,7 @@ neighbor_spot <- function(spot_neigh_list,
   return(neigh)
 }
 
-#' Title
+#' Expand the difference
 #'
 #' @param x
 #'
@@ -144,6 +153,8 @@ expand_diff <- function(x){
 #' @param st_norm
 #' @param genes
 #' @param batch
+#' @param pca_method
+#' @param parallel When applied to big data, should set parallel TRUE. Default is FALSE.
 #'
 #' @return
 #' @export
@@ -152,18 +163,28 @@ expand_diff <- function(x){
 cor_spot_cell <- function(sc_norm,
                           st_norm,
                           genes,
-                          batch = TRUE
-){
+                          batch = TRUE,
+                          pca_method = c("prcomp", "prcomp_irlba"),
+                          parallel = FALSE){
+
   matrix <- data_to_transform(sc_norm = sc_norm,
                               st_norm = st_norm,
                               spatial_genes = genes,
-                              batch = batch)
-  Cl <- cor(as.matrix(matrix),method="spearman")
-  cor_sub <- Cl[1:dim(sc_norm)[2],(dim(sc_norm)[2]+1):ncol(Cl),drop=FALSE]
-
+                              batch = batch,
+                              pca_method = pca_method)
+  if(parallel){
+    # big data
+    Cl <- parallel::mclapply(colnames(sc_norm), function(cell_i) cor(matrix[, cell_i], matrix[,colnames(st_norm)],
+                                                                     method = "spearman"),
+                             mc.cores = parallel::detectCores()-1)
+    cor_sub <- do.call(rbind, Cl)
+    rownames(cor_sub) <- colnames(sc_norm)
+  }else{
+    Cl <- cor(as.matrix(matrix),method="spearman")
+    cor_sub <- Cl[1:dim(sc_norm)[2],(dim(sc_norm)[2]+1):ncol(Cl),drop=FALSE]
+  }
   return(cor_sub)
 }
-
 
 #' Title
 #'
@@ -173,6 +194,9 @@ cor_spot_cell <- function(sc_norm,
 #' @param sc_norm
 #' @param st_norm
 #' @param batch
+#' @param pca_method
+#' @param parallel
+#' @param st_gene_list
 #' @param spot_neigh_list
 #' @param radius
 #'
@@ -186,17 +210,25 @@ calculate_cell_location <- function(cell_spot_map,
                                     sc_norm,
                                     st_norm,
                                     batch = TRUE,
+                                    pca_method = "prcomp_irlba",
+                                    parallel = FALSE,
+                                    st_gene_list = NULL,
                                     spot_neigh_list,
                                     radius = 1/2){
-  st_gene_list <- map_spot_genes(sc_norm = sc_norm,
-                                 sc_meta = sc_meta,
-                                 st_norm = st_norm,
-                                 spatial_location = st_meta)
+  if(is.null(st_gene_list)){
+    st_gene_list <- map_spot_genes(sc_norm = sc_norm,
+                                   sc_meta = sc_meta,
+                                   st_norm = st_norm,
+                                   spatial_location = st_meta)
+  }
   shvgs <- unique(unlist(st_gene_list))
+
   cell_spot_cor <- cor_spot_cell(sc_norm = sc_norm,
                                  st_norm = st_norm,
                                  genes = shvgs,
-                                 batch = batch)
+                                 batch = batch,
+                                 pca_method = pca_method,
+                                 parallel = parallel)
   cell_id  <- cell_spot_map$Single_cell
   sc_meta_coord <- sc_meta[cell_id,,drop=FALSE]
   sc_meta_coord$pred_loc_x <- NA
@@ -233,7 +265,7 @@ calculate_cell_location <- function(cell_spot_map,
         top_sim_spot  = tmp[k]
         top_spot_neighbors = df_j_all[[top_sim_spot]]
         if(length(top_spot_neighbors)>1){
-          neighbor <- neighbor_spot(neighbor_spot,top_sim_spot)
+          neighbor <- neighbor_spot(spot_neigh_list,top_sim_spot)
           neigh_LR <- neighbor$neigh_LR
           neigh_UD <- neighbor$neigh_UD
           rela_LR <- reshape2::melt(as.matrix(cell_spot_cor[cell_id[i],neigh_LR,drop=FALSE]), na.rm=TRUE)
@@ -242,7 +274,8 @@ calculate_cell_location <- function(cell_spot_map,
           coord_UD = st_meta[as.character(rela_UD$Var2),,drop=FALSE]
           n_LR = length(rela_LR$value)
           n_UD = length(rela_UD$value)
-          rela_top_spot <- reshape2::melt(as.matrix(cell_spot_cor[cell_id[i],top_sim_spot,drop=FALSE]), na.rm=TRUE)
+          rela_top_spot <- reshape2::melt(as.matrix(cell_spot_cor[cell_id[i],top_sim_spot,drop=FALSE]), na.rm=TRUE
+          )
           coord_top_spot = st_meta[as.character(rela_top_spot$Var2),,drop=FALSE]
           # Do Min-max normalization and non-linear transforamtion(tanh) of k
           coeff_expd <- expand_diff(c(rela_LR$value,rela_UD$value,rela_top_spot$value))

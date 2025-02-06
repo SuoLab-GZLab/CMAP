@@ -1,14 +1,17 @@
 suppressPackageStartupMessages(library("smfishHmrf"))
 suppressPackageStartupMessages(library("Giotto"))
 
-#' HMRF genes
+#' Extract a specified number of HMRF genes
 #'
 #' @param clust
 #' @param sample_rate
-#' @param target
+#' @param target The target number of HMRF genes
 #' @param seed
 #'
 #' @return
+#'
+#' Reference: https://rdrr.io/github/RubD/Giotto/src/R/python_hmrf.R
+#'
 #' @export
 #'
 #' @examples
@@ -55,19 +58,22 @@ sampling_sp_genes = function(clust,
 
 }
 
-#' Title
+#' Calculate the HMRF genes
 #'
-#' @param spatial_obj: hmrf_object
+#' @param spatial_obj Hmrf_object
 #' @param kmtest
-#' @param k : the number of spatial domain
-#' @param filter_hbb: TRUE or FALSE
-#' @param gene_sampling_from_top
-#' @param use_spatial_genes
-#' @param filter_method
-#' @param gene_samples
-#' @param spatial_network_name
+#' @param k The number of spatial domain; should be adjusted according to different datasets.
+#' @param filter_hbb Filter the hbb related genes, TRUE or FALSE
+#' @param gene_sampling_from_top Total spatial genes before sampling
+#' @param use_spatial_genes Which of Giotto's spatial genes to use
+#' @param filter_method Filter genes by top or by elbow method, prior to sampling
+#' @param gene_samples The number of extracted genes
+#' @param spatial_network_name Name of spatial network to use for HMRF
 #'
 #' @return
+#'
+#' Reference: https://rdrr.io/github/RubD/Giotto/src/R/python_hmrf.R
+#'
 #' @export
 #'
 #' @examples
