@@ -20,12 +20,13 @@ if(!file.exists(save_directory)) dir.create(save_directory, recursive = T)
 mem_before <- mem_used()
 start_time <- Sys.time()
 
-arg <- commandArgs(T)
-if(length(arg) < 1){
-  cat("Argument: Tune \n")
-  quit('no')
-}
-tune = as.character(arg[1])
+#arg <- commandArgs(T)
+#if(length(arg) < 1){
+#  cat("Argument: Tune \n")
+#  quit('no')
+#}
+#tune = as.character(arg[1]) 
+tune = TRUE
 print(paste0("tune the svm parameter:",tune))
 
 load("/home/kejincan/Project/SingleCellMapping/Data/2022_CARD_Simulated_MOB/Data/20221023.CARD_Simulate_Data.Paired_Cell_Resource.sc_count.sc_meta.spatial_count.spatial_location.Rdata")
