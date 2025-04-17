@@ -195,7 +195,7 @@ sc_meta_coord <- calculate_cell_location(cell_spot_map=cell_spot_map,
                                          parallel = TRUE,                   
                                          batch = TRUE,
                                          spot_neigh_list=spot_neigh_list,
-                                         radius = 1/2)
+                                         radius = 1)
 ```
 #### Output: 
 The predicted spatial locations are saved in the columns pred_loc_x and pred_loc_y of the sc_meta_scoord dataframe. These coordinates can be utilized for downstream analyses.
