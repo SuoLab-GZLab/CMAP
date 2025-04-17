@@ -169,7 +169,7 @@ sc_meta <- sc_meta[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8,]
 pred_sc_svm <- pred_sc_svm[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8]
 sc_norm <- sc_norm[,rownames(sc_meta)]
 ```
-###### Customizable Classifiers: Example with Random Forest & XGBoost
+#### Customizable Classifiers: Example with Random Forest & XGBoost
 While SVM is the default model, you can easily swap in other classifiers depending on your data. Here we illustrate how to use **Random Forest and XGBoost**, but the framework is flexible to accommodate additional models.
 ```r
 library(randomForest)
