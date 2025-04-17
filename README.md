@@ -149,7 +149,7 @@ spatial_location = cbind(spatial_location,HMRF_cluster = spatial_obj@cell_metada
 st_norm = st_norm[,rownames(spatial_location)]
 ```
 
-### 4. Level 1 mapping (DomainDivision), dividing cells into different spatial domains
+### 4. Level 1 mapping (DomainDivision), assigning cells into different spatial domains
 ```r
 matrix <- data_to_transform(sc_norm,st_norm,spatial_genes_selected,batch=TRUE,pca_method='prcomp_irlba')
 train_set <- cbind(as.data.frame(t(matrix[,colnames(st_norm)])),label=spatial_location$HMRF_cluster)
@@ -163,11 +163,42 @@ pred_st_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][[
 pred_sc_svm <- PredictDomain(train_set, test_set, cost=parameters[['cross_4']][['cost']],
                              gamma=parameters[['cross_4']][['gamma']], scale = TRUE, verbose = TRUE)
 ```
-If there exists unmatched cells with spatial tissue, you need to set **a tunable threshold** to filter out cells with low mapping probability
+If there are unmatched cells that do not confidently map to any spatial domain, we recommend filtering them using **a tunable threshold** on the predicted probability:
 ```r
 sc_meta <- sc_meta[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8,] 
 pred_sc_svm <- pred_sc_svm[apply(attr(pred_sc_svm, "probabilities"),1,max)>0.8]
 sc_norm <- sc_norm[,rownames(sc_meta)]
+```
+###### Alternative Classifiers: Random Forest & XGBoost
+In addition to SVM, we support Random Forest and XGBoost for spatial domain prediction.
+```r
+library(randomForest)
+library(xgboost)
+library(caret)
+if(classifier=='RF'){
+	rf <- randomForest(label~., data=train_set, proximity=TRUE)
+	pred_st_svm <- predict(rf, newdata = train_set[,-ncol(train_set)])
+	predictions <- predict(rf, newdata = test_set)
+	pred_probs <- predict(rf, newdata = test_set, type = "prob")
+  # Ensure predictions align with metadata
+  all(rownames(pred_probs) == names(predictions))
+  all(rownames(pred_probs) == rownames(sc_meta))
+  # Note: 0.8 may not be appropriate for RF; consider using a relaxed cutoff
+	sc_meta <- sc_meta[apply(pred_probs,1,max) > 0.5,] 
+	pred_sc_svm <- predictions[apply(pred_probs,1,max) > 0.5]
+}else if(classifier=='XGBoost'){
+	model <- train(label ~ ., data = train_set, method = "xgbLinear",verbose = FALSE)
+	pred_st_svm <- predict(model, train_set)
+	names(pred_st_svm) <- rownames(train_set)
+	predicted <- predict(model, test_set)
+	names(predicted) <- rownames(test_set)
+	pred_probs <- predict(model, test_set, type = "prob")
+	rownames(pred_probs) <- rownames(test_set)
+	all(rownames(pred_probs)==names(predicted))
+	all(rownames(pred_probs)==rownames(sc_meta))
+	sc_meta <- sc_meta[apply(pred_probs,1,max) > 0.8,]
+	pred_sc_svm <- predicted[apply(pred_probs,1,max) > 0.8]
+}
 ```
 
 ### 5. Level 2 mapping (OptimalSpot), globally optimizing the assigned spots of cells within each domain
