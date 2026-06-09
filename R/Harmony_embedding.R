@@ -81,8 +81,8 @@ harmony_embedding = function(st_norm,
 
   # Do harmony
   set.seed(123)
-  harmonyObj <- harmony::HarmonyMatrix(
-    data_mat = pca_res$x[,1:npc], ## PCA embedding matrix of cells
+  suppressWarnings({harmonyObj <- harmony::HarmonyMatrix(
+    data_mat = pca_res$x, ## PCA embedding matrix of cells
     meta_data = meta_data, ## dataframe with cell labels
     theta = 1, ## cluster diversity enforcement
     vars_use = 'dataset', ## variable to integrate out
@@ -93,6 +93,7 @@ harmony_embedding = function(st_norm,
     do_pca = FALSE, ## don't recompute PCs
     verbose = FALSE
   )
+})
 
   matrix <- t(rbind(harmonyObj[which(meta_data$dataset=='SingleCell'),,drop=FALSE],
                     harmonyObj[which(meta_data$dataset=='Spatial'),,drop=FALSE]))
